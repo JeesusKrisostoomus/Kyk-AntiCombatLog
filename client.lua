@@ -3,11 +3,9 @@ print = function(trash)
 	oldPrint('^7[^2Kyk-AntiCombatLog^7] '..trash..'^0')
 end
 
-
 ESX = nil
 local isDead = false
 local firstSpawn = true
-
 
 Citizen.CreateThread(function()
     while ESX == nil do
@@ -15,7 +13,6 @@ Citizen.CreateThread(function()
         Citizen.Wait(0)
     end
 end)
-
 
 AddEventHandler("playerSpawned", function()
 	if firstSpawn then
@@ -26,7 +23,8 @@ AddEventHandler("playerSpawned", function()
 			if Config.Debug then
 				print('Is player dead on first spawn: '..tostring(status))
 			end
-			if status then
+			if status and ESX.IsPlayerLoaded() then
+				Wait(2000) -- Possibly fixed respawn bug
 				SetEntityHealth(GetPlayerPed(-1),0)
 				TriggerServerEvent('Kyk-AntiCombatLog:playerStatusUpdate',true)
 				isDead = true
@@ -41,22 +39,18 @@ AddEventHandler("playerSpawned", function()
 	end
 end)
 
--- Triggers event if player dies
 AddEventHandler('esx:onPlayerDeath', function(data)
 	TriggerServerEvent('Kyk-AntiCombatLog:playerStatusUpdate',true)
 	isDead = true
 end)
 
-
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
-		if isDead then
-			if GetEntityHealth(GetPlayerPed(-1)) > 0 then
-				TriggerServerEvent('Kyk-AntiCombatLog:playerStatusUpdate',false)
-				isDead = false
-				Citizen.Wait(50)
-			end
+		if isDead and GetEntityHealth(GetPlayerPed(-1)) > 0 then
+			TriggerServerEvent('Kyk-AntiCombatLog:playerStatusUpdate',false)
+			isDead = false
+			Citizen.Wait(50)
 		end
-    end
+	end
 end)

@@ -39,12 +39,7 @@ ESX.RegisterServerCallback('Kyk-AntiCombatLog:isPlayerDead', function (source, c
 		MySQL.Async.fetchAll("SELECT * FROM users WHERE identifier = @identifier", {
 			  ['@identifier'] = identifier
 			},function(result)
-				print(result[1].isDead)
-				if result[1].isDead == 1 then
-					cb(true)
-				else
-					cb(false)
-				end
+				cb(result[1].isDead)
 			end
 		)
 	end
